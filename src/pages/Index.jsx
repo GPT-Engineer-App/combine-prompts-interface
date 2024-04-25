@@ -22,6 +22,22 @@ const Index = () => {
     setInputValue("");
   };
 
+  const handleDragStart = (e, index) => {
+    e.dataTransfer.setData("text/plain", index);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const fromIndex = parseInt(e.dataTransfer.getData("text/plain"));
+    const toIndex = prompts.findIndex((_, i) => i === parseInt(e.target.getAttribute("data-index")));
+    if (fromIndex === toIndex) return;
+    const item = prompts[fromIndex];
+    const newPrompts = [...prompts];
+    newPrompts.splice(fromIndex, 1);
+    newPrompts.splice(toIndex, 0, item);
+    setPrompts(newPrompts);
+  };
+
   const handleDeletePrompt = (index) => {
     const newPrompts = prompts.filter((_, i) => i !== index);
     setPrompts(newPrompts);
@@ -40,10 +56,10 @@ const Index = () => {
           Add
         </Button>
       </Flex>
-      <Box w="100%">
+      <Box w="100%" onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
         {prompts.length > 0 ? (
           prompts.map((prompt, index) => (
-            <Flex key={index} align="center" justify="space-between" p={2} borderWidth="1px" borderRadius="lg" mb={2}>
+            <Flex key={index} align="center" justify="space-between" p={2} borderWidth="1px" borderRadius="lg" mb={2} draggable="true" onDragStart={(e) => handleDragStart(e, index)} onDragOver={(e) => e.preventDefault()}>
               <Text>{prompt}</Text>
               <Button size="sm" colorScheme="red" onClick={() => handleDeletePrompt(index)}>
                 <FaTrash />
